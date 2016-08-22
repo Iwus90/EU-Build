@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
+		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa-1.3.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<!-- Activer les properties -->
+	<context:property-placeholder location="database.properties"/>
+
+	<!-- Activer les repositories JPA -->
+	<jpa:repositories base-package="be.businesstraining.dataaccess" 
+	
+	transaction-manager-ref="transactionManagerAZA"/>
+	<!--Crud pour cette packatage, systematiqument il va creer un instance -->
+
+	<!-- DataSource avec un pool de connection Hikari CP -->
+	<bean id="datasource_pool_hikari" class="com.zaxxer.hikari.HikariDataSource">
+		<property name="jdbcUrl" value="${jdbc.url}"></property>
+		<property name="username" value="${jdbc.username}"></property>
+		<property name="password" value=""></property>
+		<property name="driverClassName" value="${jdbc.driverClass}"></property>
+
+		<!-- See Configuration Hikari https://github.com/brettwooldridge/HikariCP -->
+		<property name="minimumIdle" value="5"></property>
+		<property name="maximumPoolSize" value="20"></property>
+		<!--  pool c'est un object qui doit etre negocier avec le base de donne en fonction de besoins -->
+	</bean>
+
+	<bean id="jpaVendorAdapter"
+		class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+		<property name="showSql" value="true" />
+		<property name="generateDdl" value="true" />
+		<property name="database" value="MYSQL" />
+	</bean>
+
+	<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="datasource_pool_hikari" />
+		<property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
+		<!-- spring based scanning for entity classes -->
+		<property name="packagesToScan" value="be.businesstraining.domain" />
+	</bean>
+
+	<bean id="transactionManagerAZA" class="org.springframework.orm.jpa.JpaTransactionManager" /> 
+</beans>
+
+
+
